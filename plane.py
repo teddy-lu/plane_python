@@ -1,4 +1,5 @@
 # coding=utf-8
+import random
 import time
 
 import pygame
@@ -16,6 +17,7 @@ from pygame.locals import *
     6.显示敌人
     7.优化代码：发射出的子弹
     8.让敌人移动
+    9.让敌人发射子弹
 '''
 
 
@@ -82,8 +84,25 @@ class EnemyPlane(object):
 
         self.direction = "right"
 
+        # 用来储存敌人飞机的子弹
+        self.bulletList = []
+
     def display(self):
         self.screen.blit(self.image, (self.x, self.y))
+
+        needDelItemList = []
+
+        for i in self.bulletList:
+            if i.judge():
+                needDelItemList.append(i)
+
+        for i in needDelItemList:
+            self.bulletList.remove(i)
+
+        # 更新这架飞机发射的所有子弹位置
+        for bullet in self.bulletList:
+            bullet.display()  # 显示子弹位置
+            bullet.move()  # 子弹移动
 
     def move(self):
         # 如果碰到右边届就往左走，如果碰到左边届就往右走
@@ -96,6 +115,32 @@ class EnemyPlane(object):
             self.direction = "left"
         elif self.x < 0:
             self.direction = "right"
+
+    def sheBullet(self):
+        num = random.randint(1, 100)
+        if num == 88:
+            newBullet = EnemyBullet(self.x, self.y, self.screen)
+            self.bulletList.append(newBullet)
+
+
+class EnemyBullet(object):
+    def __init__(self, x, y, screen):
+        self.x = x + 30
+        self.y = y + 30
+        self.screen = screen
+        self.image = pygame.image.load("./plane/bullet1.png").convert()
+
+    def move(self):
+        self.y += 4
+
+    def display(self):
+        self.screen.blit(self.image, (self.x, self.y))
+
+    def judge(self):
+        if self.y > 852:
+            return True
+        else:
+            return False
 
 
 class Bullet(object):
@@ -161,7 +206,9 @@ def main():
         hero_plane.display()
 
         enemyPlane.move()
+        enemyPlane.sheBullet()
         enemyPlane.display()
+        # enemyPlane.sheBullet()
 
         key_control(hero_plane)
 
