@@ -12,6 +12,7 @@ from pygame.locals import *
     5.实现玩家发射子弹
         1.按下空格键发射子弹
     6.显示敌人
+    7.优化代码：发射出的子弹
 '''
 
 
@@ -33,6 +34,23 @@ class HeroPlane(object):
 
     def display(self):
         self.screen.blit(self.image, (self.x, self.y))
+
+        # 用来存放需要删除的对象引用
+        needDelItemList = []
+
+        # 保存需要删除的对象
+        for i in self.bulletList:
+            if i.judge():
+                needDelItemList.append(i)
+
+        # 删除bulletlist中需要删除的对象
+        for i in needDelItemList:
+            self.bulletList.remove(i)
+
+        # 因为needDelItemList也保存了刚刚删除的对象的引用，所以可以删除整个列表，那么
+        # 整个列表中的引用就不存在了，也可以不调用下面的代码，因为needDelItemList是局部变量
+        # 当这个方法的调用结束时，这个局部变量也就不存在了
+        # del needDelItemList
 
         for bullet in self.bulletList:
             bullet.display()  # 显示子弹位置
@@ -75,6 +93,12 @@ class Bullet(object):
 
     def display(self):
         self.screen.blit(self.image, (self.x, self.y))
+
+    def judge(self):
+        if self.y < 0:
+            return True
+        else:
+            return False
 
 
 def key_control(heroPlane):
