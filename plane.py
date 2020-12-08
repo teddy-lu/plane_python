@@ -1,4 +1,6 @@
 # coding=utf-8
+import time
+
 import pygame
 from pygame.locals import *
 
@@ -13,6 +15,7 @@ from pygame.locals import *
         1.按下空格键发射子弹
     6.显示敌人
     7.优化代码：发射出的子弹
+    8.让敌人移动
 '''
 
 
@@ -77,8 +80,22 @@ class EnemyPlane(object):
         self.imgName = "./plane/enemy0.png"
         self.image = pygame.image.load(self.imgName).convert()
 
+        self.direction = "right"
+
     def display(self):
         self.screen.blit(self.image, (self.x, self.y))
+
+    def move(self):
+        # 如果碰到右边届就往左走，如果碰到左边届就往右走
+        if self.direction == "right":
+            self.x += 4
+        elif self.direction == "left":
+            self.x -= 4
+
+        if self.x > 480 - 50:
+            self.direction = "left"
+        elif self.x < 0:
+            self.direction = "right"
 
 
 class Bullet(object):
@@ -142,12 +159,17 @@ def main():
         screen.blit(background, (0, 0))
 
         hero_plane.display()
+
+        enemyPlane.move()
         enemyPlane.display()
 
         key_control(hero_plane)
 
         # 更新显示的内容
         pygame.display.update()
+
+        # 通过延时的方式，来降低这个while循环的循环速度，从而降低了cpu占用率
+        time.sleep(0.01)
 
 
 if __name__ == '__main__':
