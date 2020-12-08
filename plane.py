@@ -9,6 +9,8 @@ from pygame.locals import *
     4.使用面向对象的方式显示飞机，以及控制左右移动
         1.实现飞机在你想要的位置显示
         2.实现按键控制飞机移动
+    5.实现玩家发射子弹
+        1.按下空格键发射子弹
 '''
 
 
@@ -25,14 +27,39 @@ class HeroPlane(object):
 
         self.image = pygame.image.load(self.imgName).convert()
 
+        # 添加一个子弹
+        self.bulletList = []
+
     def display(self):
         self.screen.blit(self.image, (self.x, self.y))
+
+        for bullet in self.bulletList:
+            bullet.display()  # 显示子弹位置
+            bullet.move()  # 子弹移动
 
     def moveLeft(self):
         self.x -= 10
 
     def moveRight(self):
         self.x += 10
+
+    def sheBullet(self):
+        newBullet = Bullet(self.x, self.y, self.screen)
+        self.bulletList.append(newBullet)
+
+
+class Bullet(object):
+    def __init__(self, x, y, screen):
+        self.x = x + 40
+        self.y = y - 20
+        self.screen = screen
+        self.image = pygame.image.load("./plane/bullet.png").convert()
+
+    def move(self):
+        self.y -= 5
+
+    def display(self):
+        self.screen.blit(self.image, (self.x, self.y))
 
 
 def key_control(heroPlane):
@@ -55,6 +82,7 @@ def key_control(heroPlane):
             # 检测按键是否是空格键
             elif event.key == K_SPACE:
                 print("space")
+                heroPlane.sheBullet()
 
 
 def main():
