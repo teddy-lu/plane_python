@@ -11,6 +11,7 @@ from pygame.locals import *
         2.实现按键控制飞机移动
     5.实现玩家发射子弹
         1.按下空格键发射子弹
+    6.显示敌人
 '''
 
 
@@ -46,6 +47,20 @@ class HeroPlane(object):
     def sheBullet(self):
         newBullet = Bullet(self.x, self.y, self.screen)
         self.bulletList.append(newBullet)
+
+
+class EnemyPlane(object):
+    def __init__(self, screen):
+        self.x = 0
+        self.y = 0
+
+        self.screen = screen
+
+        self.imgName = "./plane/enemy0.png"
+        self.image = pygame.image.load(self.imgName).convert()
+
+    def display(self):
+        self.screen.blit(self.image, (self.x, self.y))
 
 
 class Bullet(object):
@@ -92,7 +107,10 @@ def main():
     # 2 创建一个盒窗口大小的图片，用了填充背景
     background = pygame.image.load("./plane/background.png").convert()
 
+    # 创建玩家飞机
     hero_plane = HeroPlane(screen)
+    # 创建敌人
+    enemyPlane = EnemyPlane(screen)
 
     # 3 把背景图片放到窗口中显示
     while True:
@@ -100,6 +118,7 @@ def main():
         screen.blit(background, (0, 0))
 
         hero_plane.display()
+        enemyPlane.display()
 
         key_control(hero_plane)
 
