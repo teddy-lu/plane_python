@@ -18,29 +18,20 @@ from pygame.locals import *
     7.优化代码：发射出的子弹
     8.让敌人移动
     9.让敌人发射子弹
+    代码优化：抽出基类
 '''
 
 
-class HeroPlane(object):
-    def __init__(self, screen):
-        # 设置飞机位置
-        self.x = 230
-        self.y = 700
-
-        # 设置窗口
+class Plane(object):
+    def __init__(self, screen, imageName):
         self.screen = screen
+        self.image = pygame.image.load(imageName).convert()
 
-        self.imgName = "./plane/hero1.png"
-
-        self.image = pygame.image.load(self.imgName).convert()
-
-        # 添加一个子弹
         self.bulletList = []
 
     def display(self):
         self.screen.blit(self.image, (self.x, self.y))
 
-        # 用来存放需要删除的对象引用
         needDelItemList = []
 
         # 保存需要删除的对象
@@ -61,6 +52,14 @@ class HeroPlane(object):
             bullet.display()  # 显示子弹位置
             bullet.move()  # 子弹移动
 
+
+class HeroPlane(Plane):
+    def __init__(self, screen):
+        super(HeroPlane, self).__init__(screen, "./plane/hero1.png")
+        # 设置飞机位置
+        self.x = 230
+        self.y = 700
+
     def moveLeft(self):
         self.x -= 10
 
@@ -68,41 +67,17 @@ class HeroPlane(object):
         self.x += 10
 
     def sheBullet(self):
-        newBullet = Bullet(self.x, self.y, self.screen)
+        newBullet = Bullet(self.x, self.y, self.screen, "hero")
         self.bulletList.append(newBullet)
 
 
-class EnemyPlane(object):
+class EnemyPlane(Plane):
     def __init__(self, screen):
+        super(EnemyPlane, self).__init__(screen, "./plane/enemy0.png")
         self.x = 0
         self.y = 0
 
-        self.screen = screen
-
-        self.imgName = "./plane/enemy0.png"
-        self.image = pygame.image.load(self.imgName).convert()
-
         self.direction = "right"
-
-        # 用来储存敌人飞机的子弹
-        self.bulletList = []
-
-    def display(self):
-        self.screen.blit(self.image, (self.x, self.y))
-
-        needDelItemList = []
-
-        for i in self.bulletList:
-            if i.judge():
-                needDelItemList.append(i)
-
-        for i in needDelItemList:
-            self.bulletList.remove(i)
-
-        # 更新这架飞机发射的所有子弹位置
-        for bullet in self.bulletList:
-            bullet.display()  # 显示子弹位置
-            bullet.move()  # 子弹移动
 
     def move(self):
         # 如果碰到右边届就往左走，如果碰到左边届就往右走
@@ -119,45 +94,37 @@ class EnemyPlane(object):
     def sheBullet(self):
         num = random.randint(1, 100)
         if num == 88:
-            newBullet = EnemyBullet(self.x, self.y, self.screen)
+            newBullet = Bullet(self.x, self.y, self.screen, "enemy")
             self.bulletList.append(newBullet)
 
 
-class EnemyBullet(object):
-    def __init__(self, x, y, screen):
-        self.x = x + 30
-        self.y = y + 30
-        self.screen = screen
-        self.image = pygame.image.load("./plane/bullet1.png").convert()
-
-    def move(self):
-        self.y += 4
-
-    def display(self):
-        self.screen.blit(self.image, (self.x, self.y))
-
-    def judge(self):
-        if self.y > 852:
-            return True
-        else:
-            return False
-
-
 class Bullet(object):
-    def __init__(self, x, y, screen):
-        self.x = x + 40
-        self.y = y - 20
+    def __init__(self, x, y, screen, planeName):
+        self.name = planeName
         self.screen = screen
-        self.image = pygame.image.load("./plane/bullet.png").convert()
+
+        if self.name == "hero":
+            self.x = x + 40
+            self.y = y - 20
+            imageName = "./plane/bullet.png"
+
+        if self.name == "enemy":
+            self.x = x + 30
+            self.y = y + 30
+            imageName = "./plane/bullet1.png"
+        self.image = pygame.image.load(imageName).convert()
 
     def move(self):
-        self.y -= 5
+        if self.name == "hero":
+            self.y -= 5
+        elif self.name == "enemy":
+            self.y += 4
 
     def display(self):
         self.screen.blit(self.image, (self.x, self.y))
 
     def judge(self):
-        if self.y < 0:
+        if self.y < 0 or self.y > 852:
             return True
         else:
             return False
@@ -206,9 +173,8 @@ def main():
         hero_plane.display()
 
         enemyPlane.move()
-        enemyPlane.sheBullet()
         enemyPlane.display()
-        # enemyPlane.sheBullet()
+        enemyPlane.sheBullet()
 
         key_control(hero_plane)
 
