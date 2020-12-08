@@ -1,0 +1,6 @@
+.buildpath
+.project
+.idea/
+.git/
+.DS_Store
+*.lock
